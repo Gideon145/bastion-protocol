@@ -1,0 +1,16 @@
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1
+
+# Set these env vars before building:
+# ALCHEMY_API_KEY, AGENT_PRIVATE_KEY, AGENT_ADDRESS, etc.
+# Or copy .env.example to .env and fill in values
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["python", "agent/main.py"]

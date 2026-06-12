@@ -21,6 +21,7 @@ import asyncio
 import os
 import sys
 import time
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -33,6 +34,21 @@ from agent.scorer import score_block, extract_feature_vector, compute_feature_ha
 from agent.fsm import FirewallFSM, FSMState
 from agent.alerter import send_alert, log_detection
 from agent.attest import record_onchain
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# ── Healthcheck HTTP server (for Railway) ──────────────────────────────────
+
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
+    def log_message(self, *args):
+        pass  # silence HTTP logs
+
+def run_healthcheck():
+    server = HTTPServer(("0.0.0.0", int(os.environ.get("PORT", "8080"))), HealthHandler)
+    server.serve_forever()
 
 
 # ── Configuration ─────────────────────────────────────────────────────────
@@ -49,6 +65,11 @@ async def main():
     print(f"  FSM states: NORMAL → ELEVATED → TRIPPED → COOLDOWN")
     print(f"  Score threshold: {SCORE_THRESHOLD}")
     print(f"  Chain: Robinhood (46630) via Alchemy")
+
+    # Start healthcheck HTTP server in background thread (for Railway)
+    health_thread = threading.Thread(target=run_healthcheck, daemon=True)
+    health_thread.start()
+    print(f"  Healthcheck: http://0.0.0.0:{os.environ.get('PORT', '8080')}/")
 
     fsm = FirewallFSM()
     cycle = 0

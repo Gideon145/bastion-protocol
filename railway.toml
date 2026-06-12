@@ -1,23 +1,9 @@
 [build]
 name = "bastion-agent"
-builder = "nixpacks"
 
 [deploy]
 startCommand = "python agent/main.py"
 
 [service]
 healthcheckPath = "/"
-healthcheckTimeout = 30
-
-[env]
-# All env vars loaded from Railway dashboard
-# Set these in Railway UI:
-#   ALCHEMY_API_KEY
-#   AGENT_PRIVATE_KEY
-#   AGENT_ADDRESS
-#   DETECTION_REGISTRY_ADDRESS
-#   THREAT_SIGNATURE_REGISTRY_ADDRESS
-#   TELEGRAM_BOT_TOKEN
-#   TELEGRAM_CHAT_ID
-#   GEMINI_API_KEY
-#   GAS_MANAGER_POLICY_ID
+healthcheckTimeout = 60
