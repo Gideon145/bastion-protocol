@@ -1,0 +1,12 @@
+[
+  {
+    "name": "ThreatSignatureRegistry",
+    "address": "0x87E3D9fcfA4eff229A65d045A7C741E49b581187",
+    "tx": "e50e0e4e89220be79ae2779e8eaeb1e363638477f4148e12f6711b2b1bffd4af"
+  },
+  {
+    "name": "DetectionRegistry",
+    "address": "0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e",
+    "tx": "31e9c687f57b4c46f15d03ae888fc8fd9c2718cb179f4d5b5a3770d3c274b7ff"
+  }
+]

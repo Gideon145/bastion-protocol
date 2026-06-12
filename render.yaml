@@ -1,0 +1,24 @@
+services:
+  - type: worker
+    name: bastion-agent
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python agent/main.py
+    plan: free
+    envVars:
+      - key: ALCHEMY_API_KEY
+        sync: false
+      - key: AGENT_PRIVATE_KEY
+        sync: false
+      - key: AGENT_ADDRESS
+        sync: false
+      - key: DETECTION_REGISTRY_ADDRESS
+        sync: false
+      - key: THREAT_SIGNATURE_REGISTRY_ADDRESS
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

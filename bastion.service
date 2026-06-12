@@ -1,0 +1,15 @@
+[Unit]
+Description=Bastion Protocol Agent - Autonomous exploit detection for Robinhood Chain
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/bastion
+ExecStart=/usr/bin/python3 agent/main.py
+Restart=always
+RestartSec=10
+EnvironmentFile=/opt/bastion/.env
+
+[Install]
+WantedBy=multi-user.target
