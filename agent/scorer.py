@@ -39,21 +39,16 @@ def extract_feature_vector(block_data: dict, tx_data: dict | None = None) -> lis
 def compute_score(feature_vector: list[float]) -> float:
     """Compute deterministic threat score (0-100) from feature vector.
 
-    Scoring logic stolen from ArbiGuard's RiskEngine:
-      - High amounts + high swaps + oracle deviation = higher score
-      - Signed binary discount: -15 if target is a known good contract
+    Scoring logic:
+      - swap_count, oracle deviation, reentrancy depth, and liquidity change
+        are the primary threat indicators
+      - gas anomaly amplifies existing risk
       - Capped at 100, floored at 0
     """
-    # Weights (tuned against Radiant Capital exploit)
-    weights = [0.0, 0.000015, 8.0, 6.0, 5.0, 4.0, 3.0, 0.002]
+    # Weights: [chain_id, amount, swap_count, oracle_dev, reentrancy, liquidity, gas, time_window]
+    weights = [0.0, 0.000015, 3.0, 4.0, 5.0, 3.0, 2.0, 0.001]
 
     score = sum(v * w for v, w in zip(feature_vector, weights))
-
-    # Signed binary discount — known good contracts get -15
-    # In production: check against on-chain allowlist
-    # For now: apply discount if swap_count < 2 (simple heuristic)
-    if feature_vector[2] < 2:
-        score -= 15
 
     return max(0.0, min(100.0, score))
 
