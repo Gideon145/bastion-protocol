@@ -14,7 +14,11 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 
 async def send_alert(detection: dict) -> bool:
     """Send exploit alert via Telegram."""
-    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
+    if not TELEGRAM_TOKEN:
+        print("[ALERT] No TELEGRAM_BOT_TOKEN set")
+        return False
+    if not TELEGRAM_CHAT_ID:
+        print("[ALERT] No TELEGRAM_CHAT_ID set")
         return False
 
     severity_emoji = {
@@ -28,7 +32,7 @@ async def send_alert(detection: dict) -> bool:
     emoji = severity_emoji.get(sev, "⚪")
 
     msg = (
-        f"{emoji} ARBSHIELD ALERT\n\n"
+        f"{emoji} BASTION ALERT\n\n"
         f"Pattern: {detection['pattern']}\n"
         f"Severity: {sev}\n"
         f"Confidence: {detection['confidence']:.0f}%\n"
@@ -42,8 +46,10 @@ async def send_alert(detection: dict) -> bool:
         from telegram import Bot
         bot = Bot(token=TELEGRAM_TOKEN)
         await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=msg)
+        print(f"[ALERT] Telegram alert sent to {TELEGRAM_CHAT_ID}")
         return True
-    except Exception:
+    except Exception as e:
+        print(f"[ALERT] Failed to send: {e}")
         return False
 
 
