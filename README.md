@@ -70,7 +70,7 @@ FSM states:
 
 ## Live Deployment (Verified)
 
-The agent runs 24/7 on Railway. At time of submission: 6,000+ scan cycles, 36+ hours continuous uptime.
+The agent runs 24/7 on Railway. At time of submission: 6,000+ scan cycles, 36+ hours continuous uptime, 50+ on-chain detection transactions.
 
 | Service | URL | Status |
 |----------|-----|--------|
