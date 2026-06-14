@@ -1,0 +1,19 @@
+Bastion Protocol is an autonomous threat detection agent deployed on Robinhood Chain. It monitors the mempool in real time, scores every block against known exploit patterns, and writes detection proofs on-chain before attacks confirm.
+
+DeFi protocols lost 1.8 billion dollars to exploits in 2025. Flash loans, oracle manipulation, reentrancy, and rug pulls execute in seconds. Existing monitoring tools notify teams after funds are gone. Bastion detects threats before the transaction lands.
+
+Here is how it works. The agent runs a 15-second loop on Railway, 24/7. It collects pending transactions from Alchemy WebSocket, recent blocks from Node RPC, large transfers from the Transfers API, and token approvals from the Token API. Eleven Alchemy components total.
+
+Each block is reduced to an 8-element feature vector. Swap count, oracle deviation, reentrancy depth, liquidity change, gas anomaly, and temporal patterns. This produces a deterministic zero to 100 threat score.
+
+The score feeds into a four-state FSM with hysteresis. Normal, Elevated, Tripped, and Cooldown. Score below 40 is Normal. Score above 61 trips the firewall. The Cooldown state prevents alert fatigue with a five-minute decay.
+
+When the FSM trips, the agent writes a hash-committed detection proof on-chain. Anyone can verify this proof against the DetectionRegistry contract. The threat signature is published to a write-once shared registry. Once written, it cannot be modified or deleted. No censorship possible.
+
+Two smart contracts are deployed on Robinhood Chain. DetectionRegistry stores keccak256 hashes of every detection. ThreatSignatureRegistry is a shared intelligence database any protocol can query.
+
+The agent is currently at 5,880 scan cycles with over 24 hours continuous uptime. It has processed thousands of blocks looking for flash loan attacks, oracle manipulation, reentrancy, rug pulls, and MEV sandwiches. All on-chain attestations are gas-sponsored by Alchemy Gas Manager. Zero cost to operate.
+
+No API keys needed to verify. No frontend needed to use. Protocols integrate by querying the ThreatSignatureRegistry contract directly. If a pending transaction matches a known threat signature, the protocol can reject it before execution.
+
+Built during the Arbitrum Open House London Buildathon. Solo developer. MIT licensed. The repository, contracts, and live agent are all publicly available.
