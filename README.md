@@ -6,6 +6,7 @@
 
 [![Live Agent](https://img.shields.io/badge/Live%20Agent-bastion--protocol.up.railway.app-green)](https://bastion-protocol-production.up.railway.app)
 [![Dashboard](https://img.shields.io/badge/Dashboard-bastion--dashboard.vercel.app-blue)](https://bastion-dashboard-eight.vercel.app)
+[![Demo Video](https://img.shields.io/badge/Demo-YouTube-red)](https://youtube.com/shorts/rxTqjXsLehg)
 [![GitHub](https://img.shields.io/badge/GitHub-bastion--protocol-white)](https://github.com/Gideon145/bastion-protocol)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
