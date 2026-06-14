@@ -40,14 +40,36 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        import json as _json
+        status = {
+            "agent": "Bastion Protocol",
+            "chain": "Robinhood (Arbitrum Orbit L2)",
+            "chain_id": 46630,
+            "pipeline": "COLLECT → SCORE → FSM → THREAT REGISTRY → ALERT",
+            "uptime_cycles": self.server.cycle_count if hasattr(self.server, 'cycle_count') else 0,
+            "fsm_state": self.server.fsm_state if hasattr(self.server, 'fsm_state') else "NORMAL",
+            "current_score": self.server.current_score if hasattr(self.server, 'current_score') else 0.0,
+            "threshold": 61,
+            "scans_per_minute": 4,
+            "contracts": {
+                "DetectionRegistry": "0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e",
+                "ThreatSignatureRegistry": "0x87E3D9fcfA4eff229A65d045A7C741E49b581187",
+            },
+            "agent_wallet": "0x94A4365E6B7E79791258A3Fa071824BC2b75a394",
+        }
         self.send_response(200)
+        self.send_header("Content-Type", "application/json")
         self.end_headers()
-        self.wfile.write(b"OK")
+        self.wfile.write(_json.dumps(status, indent=2).encode())
     def log_message(self, *args):
-        pass  # silence HTTP logs
+        pass
 
-def run_healthcheck():
+def run_healthcheck(fsm=None):
     server = HTTPServer(("0.0.0.0", int(os.environ.get("PORT", "8080"))), HealthHandler)
+    if fsm:
+        server.fsm_state = fsm.state.value
+    server.cycle_count = 0
+    server.current_score = 0.0
     server.serve_forever()
 
 
@@ -67,7 +89,8 @@ async def main():
     print(f"  Chain: Robinhood (46630) via Alchemy")
 
     # Start healthcheck HTTP server in background thread (for Railway)
-    health_thread = threading.Thread(target=run_healthcheck, daemon=True)
+    health_server = HTTPServer(("0.0.0.0", int(os.environ.get("PORT", "8080"))), HealthHandler)
+    health_thread = threading.Thread(target=health_server.serve_forever, daemon=True)
     health_thread.start()
     print(f"  Healthcheck: http://0.0.0.0:{os.environ.get('PORT', '8080')}/")
 
@@ -151,6 +174,10 @@ async def main():
             if cycle % 4 == 0:  # Every ~60 seconds
                 print(f"[{datetime.now(timezone.utc).strftime('%H:%M:%S')}] "
                       f"Cycle {cycle} | State: {fsm.state.value} | Score: {score:.1f}")
+                # Update healthcheck endpoint with live stats
+                health_server.cycle_count = cycle
+                health_server.current_score = round(score, 1)
+                health_server.fsm_state = fsm.state.value
 
         except Exception as e:
             print(f"[ERROR] Cycle {cycle}: {e}")
