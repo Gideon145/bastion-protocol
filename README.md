@@ -83,9 +83,8 @@ The agent runs 24/7 on Railway. At time of submission: 5,880+ scan cycles, 24+ h
 ### Live Verification Commands
 
 ```bash
-# Agent healthcheck — confirms 24/7 uptime
+# Agent healthcheck — live JSON with uptime, FSM state, current score
 curl https://bastion-protocol-production.up.railway.app
-# Returns: OK
 
 # Verify DetectionRegistry is deployed on Robinhood (46630)
 cast code 0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e --rpc-url https://robinhood-testnet.g.alchemy.com/v2/S6JWUnbHvXBFgLNh4HUiW
@@ -93,11 +92,12 @@ cast code 0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e --rpc-url https://robinhood
 # Verify ThreatSignatureRegistry is deployed on Robinhood (46630)
 cast code 0x87E3D9fcfA4eff229A65d045A7C741E49b581187 --rpc-url https://robinhood-testnet.g.alchemy.com/v2/S6JWUnbHvXBFgLNh4HUiW
 
-# Check agent wallet balance (0.01 ETH testnet)
-cast balance 0x94A4365E6B7E79791258A3Fa071824BC2b75a394 --rpc-url https://robinhood-testnet.g.alchemy.com/v2/S6JWUnbHvXBFgLNh4HUiW
-
-# View live agent logs
+# View live agent logs including on-chain detection transactions
 railway logs --service bastion-protocol --environment production
+
+# Confirmed detection transactions on Robinhood Chain:
+# 3c74a4363e07421063750d50db16ce112a617c24bbd3903f81fc3b879188f8ce
+# 933e24d47b631d199cc2ca900b0eba87e16c283cb3e158415c69a4a5c551a1b6
 ```
 
 ---
