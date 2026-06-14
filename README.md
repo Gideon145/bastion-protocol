@@ -161,46 +161,31 @@ Write-once shared threat intelligence that any protocol can query before process
 
 ---
 
-## Alchemy Integration
+## Protocol Integration
 
-Bastion uses 11 Alchemy products across the Robinhood/Arbitrum stack.
+Any DeFi protocol on Robinhood Chain can integrate with Bastion in two ways:
 
-### 1. Alchemy WebSocket
-Subscribes to pending transaction feed. Every unconfirmed transaction entering the Robinhood mempool is captured for analysis.
+**Query the Threat Registry before processing transactions.** Before executing a user transaction, call `ThreatSignatureRegistry.isKnownThreat(signatureHash)`. If the signature matches a known attack pattern, reject the transaction.
 
-### 2. Alchemy Node RPC
-Standard JSON-RPC for block queries, transaction receipts, gas estimation, and contract interaction.
+```solidity
+// In your protocol's swap/lend/borrow function:
+if (ThreatSignatureRegistry(0x87E3...).isKnownThreat(signatureHash)) {
+    revert("Transaction matches known exploit pattern");
+}
+```
 
-### 3. Alchemy Debug API
-Transaction tracing for reentrancy detection. Traces internal call chains to identify recursive call patterns.
+**Verify detection proofs.** After a detection is published, anyone can verify it by calling `DetectionRegistry.verifyDetection(hash)` and comparing against the stored `keccak256(pattern, severity, blockNumber, timestamp)`.
 
-### 4. Alchemy Token API
-Monitors token approvals. Tracks `approve()` calls to detect unusual allowance patterns that precede exploits.
+```solidity
+// Verify a detection was actually committed on-chain:
+bool wasDetected = DetectionRegistry(0x57C7...).verifyDetection(detectionHash);
+```
 
-### 5. Alchemy Transfers API
-Detects large transfer events. Tracks liquidity movement across pools to identify anomalous capital flows.
-
-### 6. Alchemy Smart Wallets
-ERC-4337 account abstraction for the agent wallet. Enables programmable transaction policies.
-
-### 7. Alchemy Gas Manager
-Sponsors all agent transactions. Detection attestations and threat registry publications cost the protocol zero gas.
-
-### 8. Alchemy Bundler API
-Batches multiple threat signature attestations into single transactions for efficiency.
-
-### 9. Alchemy Chain Deploy
-Contract deployment to Robinhood Chain (Chain ID 46630).
-
-### 10. Arbitrum Nitro
-Robinhood Chain runs on Arbitrum Nitro — fast block times enable near-real-time detection.
-
-### 11. Robinhood Faucet
-Free testnet ETH for agent operations and contract deployments.
+Both contracts are immutable — no `onlyOwner`, no upgradeable proxies, no backdoors. Once deployed, they cannot be modified.
 
 ---
 
-## Detection Coverage
+## Detection Pipeline
 
 | Pattern | Severity | Rule | Real-World Example |
 |---------|----------|------|--------------------|
@@ -237,17 +222,6 @@ bastion-protocol/
 ├── .env.example
 └── requirements.txt
 ```
-
----
-
-## What Makes This Different
-
-1. **Eleven Alchemy components** — Core (Chain Deploy, RPC, WebSocket, Faucet), Enhanced (Debug, Token, Transfers), Embedded (Smart Wallets, Gas Manager, Bundler). Every API category used.
-2. **Robinhood Chain exclusive** — built on Arbitrum Orbit L2. One prize guaranteed for Robinhood Chain projects.
-3. **Two on-chain contracts** — not a script that writes to a database. Every detection is a verifiable on-chain proof.
-4. **24/7 deployed** — running continuously on Railway. 5,880+ cycles. Verified via `curl https://bastion-protocol-production.up.railway.app`.
-5. **Zero operating cost** — Alchemy Gas Manager sponsors all transactions. Railway free tier.
-6. **4-state FSM with hysteresis** — prevents false positive alert fatigue. Requires sustained high scores to trip.
 
 ---
 
