@@ -1,11 +1,13 @@
-Bastion Protocol. Autonomous threat detection for Robinhood Chain. Twenty-four seven.
+DeFi protocols lost one point eight billion dollars to exploits last year. Flash loans. Oracle manipulation. Reentrancy. These attacks execute in seconds. Existing tools alert after the money is gone.
 
-Dashboard. Live threat gauge. FSM state machine. Pipeline lights. Five composable detectors. Fifty plus on-chain detections.
+Bastion Protocol detects threats before they land. An autonomous agent monitoring Robinhood Chain in real time. It watches pending transactions, scores every block against known exploit patterns, and writes proof on-chain before an attack confirms.
 
-Terminal. One command. Full pipeline. Collect signals from Alchemy. Score with eight-element feature vector. FSM trips. Detection recorded on-chain. Transaction confirmed.
+This is the live dashboard. Threat gauge. Pipeline lights. Fifty plus detections recorded on-chain. The agent has been running twenty-four seven on Railway.
 
-Telegram. Real-time alert. Every detection traceable. Every alert actionable.
+Now watch the pipeline fire. One command. Collect signals from Alchemy. Score with an eight-element feature vector. The FSM trips. Detection recorded on-chain. Transaction confirmed.
 
-Backtest. Seven out of eight historical exploits detected. Eighty-eight percent. Eight hundred thirty six million in attack volume covered.
+Telegram alert fires instantly. Every detection is traceable. Every alert is actionable.
+
+Backtest. Seven out of eight historical exploits detected. Eighty-eight percent across eight hundred thirty six million dollars in attack volume.
 
 Bastion Protocol. Always watching.
