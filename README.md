@@ -4,10 +4,9 @@
 
 > *"DeFi exploits execute in seconds. Detection should too."*
 
-[![Live Agent](https://img.shields.io/badge/Live%20Agent-Railway%2024%2F7-green)](https://railway.com/project/0668e86d-51d8-4084-b101-fc4ff1ff4fb6)
-[![Chain](https://img.shields.io/badge/Chain-Robinhood%20(46630)-brightgreen)](https://robinhood-testnet.g.alchemy.com)
-[![DetectionRegistry](https://img.shields.io/badge/Detection%20Registry-0x57C7...4c8e-blue)](https://robinhood-testnet.g.alchemy.com)
-[![ThreatRegistry](https://img.shields.io/badge/Threat%20Registry-0x87E3...1187-blue)](https://robinhood-testnet.g.alchemy.com)
+[![GitHub](https://img.shields.io/badge/GitHub-bastion--protocol-white)](https://github.com/Gideon145/bastion-protocol)
+[![Live Agent](https://img.shields.io/badge/Live%20Agent-Railway%2024%2F7-green)](https://github.com/Gideon145/bastion-protocol)
+[![Contracts](https://img.shields.io/badge/Contracts-Robinhood%20Chain%2046630-blue)](https://github.com/Gideon145/bastion-protocol#smart-contracts-robinhood-chain-chain-id-46630)
 [![Alchemy](https://img.shields.io/badge/Alchemy-11%20Components-orange)](https://www.alchemy.com/robinhood)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
@@ -72,29 +71,32 @@ FSM states:
 
 ## Live Deployment (Verified)
 
-| Service | URL | Status |
-|----------|-----|--------|
-| Live Agent (Railway) | https://railway.com/project/0668e86d-51d8-4084-b101-fc4ff1ff4fb6 | 24/7, 5,880+ cycles |
-| Agent Wallet | Robinhood Chain (46630) | `0x94A4365E6B7E79791258A3Fa071824BC2b75a394` |
-| DetectionRegistry | `0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e` | Deployed, verified |
-| ThreatSignatureRegistry | `0x87E3D9fcfA4eff229A65d045A7C741E49b581187` | Deployed, verified |
-| Telegram Bot | `@BastionProtocolBot` | Active, real-time alerts |
+The agent runs 24/7 on Railway. At time of submission: 5,880+ scan cycles, 24+ hours continuous uptime, FSM state NORMAL.
 
 ### Live Verification Commands
 
 ```bash
-# Check agent status and logs
+# View live agent logs
 railway logs --service bastion-protocol --environment production
 
-# Verify DetectionRegistry deployment
+# Verify DetectionRegistry deployment on Robinhood (46630)
 cast code 0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e --rpc-url https://robinhood-testnet.g.alchemy.com/v2/S6JWUnbHvXBFgLNh4HUiW
 
-# Verify ThreatSignatureRegistry deployment
+# Verify ThreatSignatureRegistry deployment on Robinhood (46630)
 cast code 0x87E3D9fcfA4eff229A65d045A7C741E49b581187 --rpc-url https://robinhood-testnet.g.alchemy.com/v2/S6JWUnbHvXBFgLNh4HUiW
 
 # Check agent wallet balance
 cast balance 0x94A4365E6B7E79791258A3Fa071824BC2b75a394 --rpc-url https://robinhood-testnet.g.alchemy.com/v2/S6JWUnbHvXBFgLNh4HUiW
 ```
+
+| Artifact | Detail |
+|----------|--------|
+| Agent Wallet | `0x94A4365E6B7E79791258A3Fa071824BC2b75a394` on Robinhood Chain (46630) |
+| DetectionRegistry | `0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e` — hash-committed detection proofs |
+| ThreatSignatureRegistry | `0x87E3D9fcfA4eff229A65d045A7C741E49b581187` — write-once shared threat intel |
+| Deployment TXs | `e50e0e4e...` (ThreatSignatureRegistry), `31e9c687...` (DetectionRegistry) |
+| Uptime | 24+ hours, 5,880+ scan cycles, 15s cadence |
+| Telegram | `@BastionProtocolBot` — real-time CRITICAL/HIGH alerts |
 
 ---
 
@@ -154,6 +156,8 @@ Write-once shared threat intelligence that any protocol can query.
 | `isKnownThreat(signatureHash)` | Returns whether a given signature has been published |
 | `getThreatCount()` | Returns total number of published threat signatures |
 
+Verification: use the `cast code` commands above to verify both contracts are deployed on Robinhood Chain.
+
 ---
 
 ## Alchemy Integration
@@ -161,10 +165,10 @@ Write-once shared threat intelligence that any protocol can query.
 Bastion uses 11 Alchemy products across the Robinhood/Arbitrum stack.
 
 ### 1. Alchemy WebSocket
-Subscribes to pending transaction feed. Every unconfirmed transaction entering the Robinhood mempool is captured for analysis. Called every iteration.
+Subscribes to pending transaction feed. Every unconfirmed transaction entering the Robinhood mempool is captured for analysis.
 
 ### 2. Alchemy Node RPC
-Standard JSON-RPC for block queries, transaction receipts, gas estimation, and contract interaction. Called every iteration.
+Standard JSON-RPC for block queries, transaction receipts, gas estimation, and contract interaction.
 
 ### 3. Alchemy Debug API
 Transaction tracing for reentrancy detection. Traces internal call chains to identify recursive call patterns.
@@ -193,19 +197,15 @@ Robinhood Chain runs on Arbitrum Nitro — fast block times enable near-real-tim
 ### 11. Robinhood Faucet
 Free testnet ETH for agent operations and contract deployments.
 
-All Alchemy API calls are logged with timestamps in the agent output, providing verifiable proof of sponsor technology usage.
-
 ---
 
 ## Detection Coverage
 
-Five exploit patterns detected. Each uses regex-based deterministic rules.
-
 | Pattern | Severity | Rule | Real-World Example |
 |---------|----------|------|--------------------|
-| Flash Loan Attack | CRITICAL | Multi-hop swaps with uncollateralized borrow in single tx | Euler $197M |
-| Oracle Manipulation | CRITICAL | Price deviation >10% from TWAP across pools | Mango Markets $116M |
-| Reentrancy | HIGH | Recursive call depth >3 with state changes | Cream Finance $130M |
+| Flash Loan Attack | CRITICAL | Multi-hop swaps with uncollateralized borrow in single tx | Euler $197M (2023) |
+| Oracle Manipulation | CRITICAL | Price deviation >10% from TWAP across pools | Mango Markets $116M (2022) |
+| Reentrancy | HIGH | Recursive call depth >3 with state changes | Cream Finance $130M (2021) |
 | Rug Pull | HIGH | Liquidity removal >90% within 24h of large inflow | $3.6B in 2023 |
 | MEV Sandwich | MEDIUM | Buy-same-block-sell pattern with >5% slippage | $1.5B in 2024 |
 
@@ -233,7 +233,6 @@ bastion-protocol/
 ├── Dockerfile               # Railway deployment
 ├── Dockerfile.example
 ├── railway.toml
-├── render.yaml
 ├── .env.example
 └── requirements.txt
 ```
@@ -242,12 +241,12 @@ bastion-protocol/
 
 ## What Makes This Different
 
-1. **Eleven Alchemy components** — maximum sponsor surface area. Every API category (Core, Enhanced, Embedded) is used.
+1. **Eleven Alchemy components** — maximum sponsor surface area. Every API category is used: Core (Chain Deploy, RPC, WebSocket, Faucet), Enhanced (Debug, Token, Transfers), Embedded (Smart Wallets, Gas Manager, Bundler).
 2. **Robinhood Chain exclusive** — built on Arbitrum Orbit L2. At minimum, one prize is reserved for Robinhood Chain projects.
-3. **Two on-chain contracts** — not a script that logs to a database. Every detection is a verifiable on-chain proof.
-4. **24/7 deployed** — running continuously on Railway since deployment. Not a local demo. 5,880+ cycles.
+3. **Two on-chain contracts** — not a script that logs to a database. Every detection is a verifiable on-chain proof via `cast code`.
+4. **24/7 deployed** — running continuously on Railway since deployment. 5,880+ cycles, 15-second cadence.
 5. **Zero operating cost** — Alchemy Gas Manager sponsors all transactions. Railway free tier. No billing required.
-6. **4-state FSM with hysteresis** — prevents false positive alert fatigue. Real exploit detection requires sustained high scores, not single spikes.
+6. **4-state FSM with hysteresis** — prevents false positive alert fatigue. Real exploit detection requires sustained high scores.
 
 ---
 
@@ -265,11 +264,11 @@ python agent/main.py
 
 ## Security Model
 
-- **Write-once Threat Registry** — signatures cannot be modified or deleted after publication. No censorship possible.
-- **Hash-committed Detections** — `keccak256(pattern, severity, blockNumber, timestamp)` stored on-chain. Verifiable by any third party.
-- **Gas-sponsored** — Alchemy Gas Manager subsidizes all agent transactions. The protocol absorbs cost.
-- **No privileged roles** — no `onlyOwner`, no upgradeable proxies, no backdoors. Contracts are immutable after deployment.
-- **Hysteresis FSM** — state transitions require sustained scores. Prevents false positive alert fatigue.
+- **Write-once Threat Registry** — signatures cannot be modified or deleted after publication
+- **Hash-committed Detections** — `keccak256(pattern, severity, blockNumber, timestamp)` stored on-chain, verifiable by anyone
+- **Gas-sponsored** — Alchemy Gas Manager subsidizes all agent transactions
+- **No privileged roles** — no `onlyOwner`, no upgradeable proxies, no backdoors
+- **Hysteresis FSM** — state transitions require sustained scores to prevent false positives
 
 ---
 
@@ -281,7 +280,7 @@ python agent/main.py
 
 ### Build Timeline
 
-Bastion Protocol was built during the Arbitrum Open House London Buildathon (3-week window). Development began with architecture design and agent scaffolding in Python with web3.py. Contracts were deployed on Robinhood Chain mid-buildathon. The agent was containerized with Docker and deployed 24/7 on Railway. Currently at 5,880+ scan cycles with continuous uptime.
+Bastion Protocol was built during the Arbitrum Open House London Buildathon. Development began with architecture design and agent scaffolding in Python with web3.py. Contracts were deployed on Robinhood Chain mid-buildathon. The agent was containerized with Docker and deployed 24/7 on Railway. Currently at 5,880+ scan cycles with continuous uptime.
 
 ---
 
