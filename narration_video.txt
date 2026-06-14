@@ -1,0 +1,15 @@
+Bastion Protocol. Autonomous exploit detection for Robinhood Chain. Watch the full pipeline run live.
+
+I run one command: python agent slash demo dot py.
+
+Stage one, COLLECT. The agent pulls pending transactions, recent blocks, and token approvals from Alchemy WebSocket. Three pending TXs, six blocks, collected in under five seconds.
+
+Stage two, SCORE. The eight-element feature vector is computed. Swap count, oracle deviation, reentrancy depth, liquidity change. Threat score: one hundred out of one hundred. Severity: CRITICAL. This is a simulated flash loan plus oracle manipulation attack.
+
+Stage three, FSM. The state machine evaluates the score against the detection threshold. NORMAL to ELEVATED. ELEVATED to TRIPPED. The firewall triggers.
+
+Stage four, ON-CHAIN ATTESTATION. The detection is hash-committed to the DetectionRegistry contract on Robinhood Chain. Transaction confirmed. Immutable proof on-chain.
+
+Stage five, TELEGRAM ALERT. Real-time notification sent to at bastion underscore pro underscore bot. Every detection traceable, every alert actionable.
+
+Collect. Score. FSM. On-chain attest. Alert. Bastion Protocol. Always watching.
