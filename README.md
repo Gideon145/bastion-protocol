@@ -74,6 +74,7 @@ The agent runs 24/7 on Railway. At time of submission: 6,000+ scan cycles, 36+ h
 | Service | URL | Status |
 |----------|-----|--------|
 | Live Agent (Railway) | https://bastion-protocol-production.up.railway.app | Returns live JSON: `uptime_cycles`, `fsm_state`, `current_score` |
+| Live Dashboard (Vercel) | https://bastion-dashboard.vercel.app | Real-time threat monitoring UI with live stats |
 | Agent Wallet | `0x94A4365E6B7E79791258A3Fa071824BC2b75a394` | Robinhood Chain (46630) |
 | DetectionRegistry | `0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e` | Deployed, verifiable via `cast code` |
 | ThreatSignatureRegistry | `0x87E3D9fcfA4eff229A65d045A7C741E49b581187` | Deployed, verifiable via `cast code` |
@@ -272,6 +273,70 @@ Real problems encountered during development, and exactly how they were solved.
    This is a real `recordDetection()` transaction from the live agent.
 
 5. **See the alert on Telegram:** Open `@bastion_pro_bot` — every CRITICAL/HIGH detection fires a real-time message with pattern, severity, confidence score, feature hash, and on-chain TX link.
+
+---
+
+## Live Dashboard
+
+**[bastion-dashboard.vercel.app](https://bastion-dashboard.vercel.app)** — real-time threat monitoring UI.
+
+| Element | What it shows |
+|---------|--------------|
+| Scan Cycles | Live counter polling Railway healthcheck every 5s |
+| FSM State | Color-coded badge: 🟢 NORMAL · 🟡 ELEVATED · 🔴 TRIPPED · 🔵 COOLDOWN |
+| Threat Score | Current 0-100 score + detection threshold |
+| Pipeline Status | 5-stage lights: COLLECT → SCORE → FSM → ATTEST → ALERT |
+| Contract Cards | DetectionRegistry + ThreatSignatureRegistry with block explorer links |
+| Verify Live | Curl + cast commands pre-filled for one-click verification |
+
+Dark terminal aesthetic. Zero dependencies beyond Next.js. Deployed on Vercel.
+
+---
+
+## Composable Detectors
+
+Detection is modular — protocols integrate only what they need. Five standalone contracts inheriting from `BaseDetector.sol`:
+
+| Detector | Severity | Signature | Confidence Formula |
+|----------|----------|-----------|-------------------|
+| `FlashLoanDetector` | CRITICAL | Multi-hop + uncollateralized borrow in single TX | hopDepth × 15 + borrowSize × 30 + swapVolume × 25 |
+| `OracleDetector` | CRITICAL | Price deviation >10% from TWAP | deviationBPS × 50 + poolCount × 10 |
+| `ReentrancyDetector` | HIGH | Recursive call depth >3 + state change | depth × 20 + valueAtRisk × 20 + agePenalty |
+| `RugPullDetector` | HIGH | Liquidity removal >90% within 24h of large inflow | removal% × 60 + inflowSize × 25 + timeProximity |
+| `MEVDetector` | MEDIUM | Buy-same-block-sell, >5% slippage | slippage × 40 + victimValue × 30 + atomicPenalty + repeatCount |
+
+```solidity
+// Protocol integrates a single detector:
+bool isFlashLoan, uint256 confidence, bytes32 hash =
+    FlashLoanDetector(0x...).analyze(txData, recentBlocks, block.number);
+if (isFlashLoan) revert("Flash loan attack detected");
+```
+
+Every detector returns `(bool isThreat, uint256 confidence, bytes32 patternHash)` — same interface, compose freely.
+
+---
+
+## Backtest: Detection Efficacy
+
+The 8-element feature vector was evaluated against 8 historical DeFi exploits totaling **$836M** in losses:
+
+| Exploit | Type | Amount | Score | Severity | Detected |
+|---------|------|--------|-------|----------|----------|
+| Euler Finance | Flash Loan | $197M | 100.0 | CRITICAL | ✅ |
+| Mango Markets | Oracle Manipulation | $116M | 100.0 | CRITICAL | ✅ |
+| Cream Finance | Reentrancy | $130M | 86.6 | CRITICAL | ✅ |
+| BonqDAO | Oracle Manipulation | $120M | 100.0 | CRITICAL | ✅ |
+| Platypus Finance | Flash Loan | $8.5M | 100.0 | CRITICAL | ✅ |
+| Rari Capital (Fuse) | Reentrancy | $80M | 63.6 | HIGH | ✅ |
+| Beanstalk Farms | Flash Loan + Governance | $182M | 100.0 | CRITICAL | ✅ |
+| MEV Sandwich (simulated) | MEV | $2.5M | 46.6 | MEDIUM | ❌ |
+
+**Result: 7/8 exploits detected (88%).** All CRITICAL/HIGH severity attacks caught. MEV sandwich detection is the active improvement area — pattern relies on gas anomaly signals that are chain-specific.
+
+```bash
+# Run the backtest yourself:
+python scripts/backtest.py
+```
 
 ---
 
