@@ -8,8 +8,8 @@ import asyncio
 from datetime import datetime
 
 
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8776443580:AAG9c5yXBK014NAJXCtrY35s8g9cTSJ5cT8")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "5933685050")
 
 
 async def send_alert(detection: dict) -> bool:
