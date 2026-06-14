@@ -8,25 +8,25 @@ from hashlib import sha256
 
 from web3 import Web3
 
-# Minimal ABI for DetectionRegistry.commitDetection()
+# Minimal ABI for DetectionRegistry
 DETECTION_REGISTRY_ABI = [
     {
-        "inputs": [
-            {"internalType": "bytes32", "name": "patternHash", "type": "bytes32"},
-            {"internalType": "uint8", "name": "severity", "type": "uint8"},
-            {"internalType": "uint256", "name": "blockNumber", "type": "uint256"},
-            {"internalType": "bytes32", "name": "evidenceHash", "type": "bytes32"},
-        ],
-        "name": "commitDetection",
+        "inputs": [{"internalType": "address", "name": "agent", "type": "address"}],
+        "name": "registerAgent",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function",
     },
     {
-        "inputs": [{"internalType": "bytes32", "name": "hash", "type": "bytes32"}],
-        "name": "verifyDetection",
-        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-        "stateMutability": "view",
+        "inputs": [
+            {"internalType": "bytes32", "name": "patternHash", "type": "bytes32"},
+            {"internalType": "uint8", "name": "severity", "type": "uint8"},
+            {"internalType": "uint256", "name": "confidence", "type": "uint256"},
+            {"internalType": "bytes32", "name": "evidenceHash", "type": "bytes32"},
+        ],
+        "name": "recordDetection",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "nonpayable",
         "type": "function",
     },
 ]
@@ -60,17 +60,31 @@ def record_onchain(detection: dict) -> str | None:
         pattern = detection.get("pattern", "UNKNOWN")
         severity_str = detection.get("severity", "MEDIUM")
         severity = SEVERITY_MAP.get(severity_str, 0)
+        confidence = int(detection.get("confidence", 0))
         evidence = detection.get("evidence", {})
 
         pattern_hash = Web3.keccak(text=pattern)
-        block_number = w3.eth.block_number
         evidence_bytes = str(evidence).encode()
         evidence_hash = Web3.keccak(evidence_bytes)
 
-        tx = registry.functions.commitDetection(
+        # Register agent first (idempotent — safe to call every time)
+        try:
+            reg_tx = registry.functions.registerAgent(account.address).build_transaction({
+                "from": account.address,
+                "nonce": w3.eth.get_transaction_count(account.address),
+                "chainId": int(os.environ.get("ROBINHOOD_CHAIN_ID", "46630")),
+            })
+            signed_reg = account.sign_transaction(reg_tx)
+            reg_hash = w3.eth.send_raw_transaction(signed_reg.raw_transaction)
+            w3.eth.wait_for_transaction_receipt(reg_hash)
+        except Exception:
+            pass  # Agent already registered
+
+        # Record detection on-chain
+        tx = registry.functions.recordDetection(
             pattern_hash,
             severity,
-            block_number,
+            confidence,
             evidence_hash,
         ).build_transaction({
             "from": account.address,
@@ -82,7 +96,7 @@ def record_onchain(detection: dict) -> str | None:
         tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
-        print(f"[ATTEST] Detection committed on-chain: {tx_hash.hex()}")
+        print(f"[ATTEST] Detection #{receipt.get('status', '?')} recorded on-chain: {tx_hash.hex()}")
         return tx_hash.hex()
 
     except Exception as e:
