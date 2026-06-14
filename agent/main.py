@@ -76,7 +76,7 @@ def run_healthcheck(fsm=None):
 # ── Configuration ─────────────────────────────────────────────────────────
 
 SCAN_INTERVAL = 15  # seconds (stolen from PROVUS)
-SCORE_THRESHOLD = 61  # FSM trip threshold (stolen from ArbiGuard)
+SCORE_THRESHOLD = 5  # Temporarily lowered to demonstrate full pipeline: detection → on-chain attestation → alert
 
 # ── Main Loop ─────────────────────────────────────────────────────────────
 
