@@ -6,7 +6,7 @@
 
 [![Live Agent](https://img.shields.io/badge/Live%20Agent-bastion--protocol.up.railway.app-green)](https://bastion-protocol-production.up.railway.app)
 [![GitHub](https://img.shields.io/badge/GitHub-bastion--protocol-white)](https://github.com/Gideon145/bastion-protocol)
-[![Alchemy](https://img.shields.io/badge/Alchemy-11%20Components-orange)](https://www.alchemy.com/chain/robinhood)
+[![Alchemy](https://img.shields.io/badge/Alchemy-11%20Components-orange)](https://www.alchemy.com)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
 Built for [Arbitrum Open House London Buildathon](https://arbitrum-london.hackquest.io/buildathons/Arbitrum-Open-House-London-Online-Buildathon) — $115,000 prize pool.
@@ -74,7 +74,7 @@ The agent runs 24/7 on Railway. At time of submission: 5,880+ scan cycles, 24+ h
 
 | Service | URL | Status |
 |----------|-----|--------|
-| Live Agent (Railway) | https://bastion-protocol-production.up.railway.app | Returns `OK` — healthcheck live |
+| Live Agent (Railway) | https://bastion-protocol-production.up.railway.app | Returns live JSON: `uptime_cycles`, `fsm_state`, `current_score` |
 | Agent Wallet | `0x94A4365E6B7E79791258A3Fa071824BC2b75a394` | Robinhood Chain (46630) |
 | DetectionRegistry | `0x57C7f2F3051928E2cc7C871Bac590bF1d4BF4c8e` | Deployed, verifiable via `cast code` |
 | ThreatSignatureRegistry | `0x87E3D9fcfA4eff229A65d045A7C741E49b581187` | Deployed, verifiable via `cast code` |
